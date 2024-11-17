@@ -50,7 +50,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <Button
-                className="inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-medium !bg-black text-white"
+                className="inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-medium hover:bg-gray-800 text-white transition-colors duration-300"
               >
                 <Link href="/dashboard" className="flex items-center">
                   Start Demo
