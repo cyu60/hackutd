@@ -50,6 +50,7 @@ export function B2bSalesPractice() {
             </a>
           </div>
           <div className="flex items-center space-x-2">
+            <p className="m-2 hover:font-bold"> Create Profile </p>
             <span className="text-sm text-black dark:text-gray-300">
               Admin View
             </span>
