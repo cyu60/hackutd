@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Cloud, Package, Drill } from "lucide-react";
+import Image from "next/image";
+import Logo from "@/public/img/logo.png";
 
 export function B2bSalesPractice() {
   const [isAdminView, setIsAdminView] = useState(false);
@@ -35,22 +37,31 @@ export function B2bSalesPractice() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      <header className="bg-white dark:bg-gray-800 shadow">
+    <div className="min-h-screen bg-[#efefef] dark:bg-gray-900">
+      <header className="dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Drill className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              DealDrill
-            </h1>
+            {/* <Drill className="w-8 h-8 text-primary" /> */}
+            <a href="/dashboard" className="flex items-center space-x-2">
+              <Image
+                src={Logo}
+                alt="DealDrill Logo"
+                width={32}
+                height={32}
+              />
+              <h1 className="text-2xl font-bold text-black dark:text-white">
+                DealDrill
+              </h1>
+            </a>
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-black dark:text-gray-300">
               Admin View
             </span>
             <Switch
               checked={isAdminView}
               onCheckedChange={setIsAdminView}
+              className="color-[#163286]"
               aria-label="Toggle admin view"
             />
           </div>
@@ -58,7 +69,7 @@ export function B2bSalesPractice() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h2 className="text-xl font-semibold mb-6 text-gray-800 dark:text-gray-200">
+        <h2 className="text-xl text-center font-semibold mb-6 text-gray-800 dark:text-gray-200">
           {isAdminView ? "Manage Scenarios" : "Practice Your Pitch"}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,6 +91,7 @@ export function B2bSalesPractice() {
                           ? "secondary"
                           : "destructive"
                       }
+                      className={scenario.difficulty === "Medium" ? "bg-custom-medium" : ""}
                     >
                       {scenario.difficulty}
                     </Badge>
