@@ -255,7 +255,7 @@ export function PinataScenario() {
                       feedback.valueProposition.score) /
                     4
                   ).toFixed(1)}
-                  /10
+                  /5
                 </div>
               </div>
               <div className="space-y-2">
