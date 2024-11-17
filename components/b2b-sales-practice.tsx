@@ -32,7 +32,7 @@ export function B2bSalesPractice() {
       description: "AI and machine learning platform",
       icon: <Cloud className="w-6 h-6" />,
       difficulty: "Hard",
-      href: "#",
+      href: "/sambanova",
     },
   ];
 
