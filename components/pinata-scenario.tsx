@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -12,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Drill, Mail, User } from "lucide-react";
+import Image from "next/image";
+import Logo from "@/public/img/logo.png";
 
 export function PinataScenario() {
   const [response, setResponse] = useState("");
@@ -21,10 +28,17 @@ export function PinataScenario() {
       <header className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
           <div className="flex items-center space-x-2">
-            <Drill className="w-8 h-8 text-primary" />
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              DealDrill
-            </h1>
+            <a href="/dashboard" className="flex items-center space-x-2">
+              <Image
+                src={Logo}
+                alt="DealDrill Logo"
+                width={32}
+                height={32}
+              />
+              <h1 className="text-2xl font-bold text-black dark:text-white">
+                DealDrill
+              </h1>
+            </a>
           </div>
         </div>
       </header>
@@ -50,7 +64,7 @@ export function PinataScenario() {
         </Card>
 
         <Card>
-          <CardHeader>
+          {/* <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <Mail className="w-5 h-5" />
               <span>Inbound Email from Jane Doe</span>
@@ -58,59 +72,84 @@ export function PinataScenario() {
             <CardDescription>
               Subject: Inquiry About Pinata&apos;s IPFS Storage Solutions
             </CardDescription>
+          </CardHeader> */}
+          <CardHeader className="border-b p-4">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="JD" />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold">Jane Doe</h2>
+                <p className="text-sm text-gray-500">jane.doe@acmeconsumergoods.com</p>
+              </div>
+              <div className="text-sm text-gray-500">
+                {new Date().toLocaleString()}
+              </div>
+            </div>
           </CardHeader>
-          <CardContent>
-            <ScrollArea className=" rounded-md border p-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Dear Piñata Team,
-                <br />
-                <br />
-                I am the Operations Manager at Acme Consumer Goods, and we are
-                exploring solutions to improve our data storage and management
-                processes. We face challenges with data accessibility, security,
-                and scalability.
-                <br />
-                <br />
-                Could you please provide more information on how Pinata&apos;s
-                platform can assist us in overcoming these challenges?
-                Additionally, we would like to understand the implementation
-                process and any support services you offer.
-                <br />
-                <br />
-                Looking forward to your response.
-                <br />
-                <br />
-                Best regards,
-                <br />
-                <br />
-                Jane Doe
-                <br />
-                Operations Manager
-                <br />
-                Acme Consumer Goods
-                <br />
-                jane.doe@acmeconsumergoods.com
-                <br />
-                (555) 123-4567
-              </p>
-            </ScrollArea>
-          </CardContent>
+          <CardContent className="p-4">
+          <h3 className="text-xl font-semibold mb-2">Inquiry About Pinata&apos;s IPFS Storage Solutions</h3>
+          {/* <ScrollArea className="h-64 rounded-md border p-4"> */}
+            <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">
+              Dear Piñata Team,
+              <br />
+              <br />
+              I am the Operations Manager at Acme Consumer Goods, and we are exploring solutions to improve our data storage and management processes. We face challenges with data accessibility, security, and scalability.
+              <br />
+              <br />
+              Could you please provide more information on how Pinata&apos;s platform can assist us in overcoming these challenges? Additionally, we would like to understand the implementation process and any support services you offer.
+              <br />
+              <br />
+              Looking forward to your response.
+              <br />
+              <br />
+              Best regards,
+              <br />
+              <br />
+              Jane Doe
+              <br />
+              Operations Manager
+              <br />
+              Acme Consumer Goods
+              <br />
+              jane.doe@acmeconsumergoods.com
+              <br />
+              (555) 123-4567
+            </p>
+          {/* </ScrollArea> */}
+        </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
+        <CardHeader className="border-b p-4">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="JD" />
+                <AvatarFallback>US</AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold"><span>Salesperson&apos;s Response</span></h2>
+                <p className="text-sm text-gray-500">salesperson@email.com</p>
+              </div>
+              <div className="text-sm text-gray-500">
+                {new Date().toLocaleString()}
+              </div>
+            </div>
+          </CardHeader>
+          {/* <CardHeader>
             <CardTitle className="flex items-center space-x-2">
               <User className="w-5 h-5" />
               <span>Salesperson&apos;s Response</span>
             </CardTitle>
-          </CardHeader>
+          </CardHeader> */}
           <CardContent>
             <Textarea
               placeholder="Type your response here..."
               value={response}
               onChange={(e) => setResponse(e.target.value)}
               rows={10}
-              className="w-full"
+              className="w-full mt-5"
             />
             <div className="mt-4 flex justify-end">
               <Button>Submit Response</Button>

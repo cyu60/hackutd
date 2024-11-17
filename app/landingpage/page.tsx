@@ -51,7 +51,7 @@ export default function LandingPage() {
               <Button
                 className="inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-medium !bg-black text-white"
               >
-                <Link href="/demo" className="flex items-center">
+                <Link href="/dashboard" className="flex items-center">
                   Start Demo
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
