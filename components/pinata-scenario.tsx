@@ -12,9 +12,74 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Drill, Mail, User } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import Link from "next/link";
+
+interface FeedbackResponse {
+  contentClarity: {
+    feedback: string;
+    score: number;
+  };
+  personalization: {
+    feedback: string;
+    score: number;
+  };
+  toneAndStyle: {
+    feedback: string;
+    score: number;
+  };
+  valueProposition: {
+    feedback: string;
+    score: number;
+  };
+  status: string;
+  reason: string;
+}
 
 export function PinataScenario() {
   const [response, setResponse] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackResponse | null>(null);
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const url =
+        "https://magicloops.dev/api/loop/4818a939-6705-4ae3-a60a-8faed7845c4f/run";
+      const apiResponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(response),
+      });
+
+      const feedbackData = await apiResponse.json();
+      setFeedback(feedbackData);
+
+      toast({
+        title: "Response Submitted",
+        description: "Your response has been analyzed successfully.",
+      });
+      setShowFeedback(true);
+    } catch (error) {
+      console.error("Error submitting response:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
@@ -113,11 +178,70 @@ export function PinataScenario() {
               className="w-full"
             />
             <div className="mt-4 flex justify-end">
-              <Button>Submit Response</Button>
+              <Button disabled={isSubmitting} onClick={handleSubmit}>
+                {isSubmitting ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-4 border-b-4 border-blue-500"></div>
+                ) : (
+                  "Submit Response"
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
       </main>
+
+      <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Response Analysis</DialogTitle>
+          </DialogHeader>
+          {feedback && (
+            <div className="space-y-4">
+              {feedback.reason && (
+                <div className="space-y-2 bg-muted p-4 rounded-lg">
+                  <h3 className="font-semibold">Overall Feedback</h3>
+                  <p className="text-sm">{feedback.reason}</p>
+                </div>
+              )}
+              <div className="space-y-2">
+                <h3 className="font-semibold">Content Clarity</h3>
+                <p className="text-sm">{feedback.contentClarity.feedback}</p>
+                <div className="text-sm text-muted-foreground">
+                  Score: {feedback.contentClarity.score}/5
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Personalization</h3>
+                <p className="text-sm">{feedback.personalization.feedback}</p>
+                <div className="text-sm text-muted-foreground">
+                  Score: {feedback.personalization.score}/5
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Tone and Style</h3>
+                <p className="text-sm">{feedback.toneAndStyle.feedback}</p>
+                <div className="text-sm text-muted-foreground">
+                  Score: {feedback.toneAndStyle.score}/5
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Value Proposition</h3>
+                <p className="text-sm">{feedback.valueProposition.feedback}</p>
+                <div className="text-sm text-muted-foreground">
+                  Score: {feedback.valueProposition.score}/5
+                </div>
+              </div>
+              {feedback.status === "ok" && (
+                <div className="pt-4 flex justify-center">
+                  <Button asChild>
+                    <Link href="/ai-chat">Proceed to Voice Chat</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

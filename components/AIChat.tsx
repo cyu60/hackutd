@@ -5,77 +5,31 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createAudioStreamFromText } from "@/utils/elevenlabsTTS";
 import { MicButton } from "@/components/MicButton";
-import { useReducer, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { systemPromptJane } from "@/lib/constants";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-// Define actions for the reducer
-type Action = { type: "UPDATE_PROPERTY"; payload: Partial<PropertyData> };
-
-type PropertyData = {
-  name: string;
-  address: string;
-  propertyAddress: string;
-  sellerConcessions: "yes" | "no";
-  buyerBrokerFee: string;
-  closingCostAssistance: string;
-  mortgageContingency: "yes" | "no";
-  appraisalContingency: "yes" | "no";
-  inspections: "yes" | "no";
-  selectedInspections: string[];
-  inspectionDays: number;
-  settlementDate: Date | undefined;
-  offerDate: Date | undefined;
-  includedFixtures: string;
-  excludedFixtures: string;
-  additionalTerms: string;
-  purchasePrice: number;
-  agreementDraftDate: Date;
-  earnestMoneyDeposit: number;
-  initialDepositDays: number;
+// Simplify to only keep decision-related type
+type Decision = {
+  decision: "yes" | "no";
+  reason: string;
 };
 
-const initialPropertyData: PropertyData = {
-  name: "",
-  address: "",
-  propertyAddress: "",
-  sellerConcessions: "no" as "yes" | "no",
-  buyerBrokerFee: "",
-  closingCostAssistance: "",
-  mortgageContingency: "no" as "yes" | "no",
-  appraisalContingency: "no" as "yes" | "no",
-  inspections: "no" as "yes" | "no",
-  selectedInspections: [],
-  inspectionDays: 0,
-  settlementDate: undefined,
-  offerDate: undefined,
-  includedFixtures: "",
-  excludedFixtures: "",
-  additionalTerms: "",
-  purchasePrice: 0,
-  agreementDraftDate: new Date(),
-  earnestMoneyDeposit: 0,
-  initialDepositDays: 0,
+type Farewell = {
+  farewell: string;
+  reason: string;
 };
 
-// Reducer function
-function propertyReducer(state: PropertyData, action: Action): PropertyData {
-  switch (action.type) {
-    case "UPDATE_PROPERTY":
-      return { ...state, ...action.payload };
-    default:
-      return state;
-  }
-}
+type ModalContent = {
+  type: "decision" | "farewell";
+  content: Decision | Farewell;
+};
 
 export function AIChat() {
-  const [propertyData, dispatch] = useReducer(
-    propertyReducer,
-    initialPropertyData
-  );
+  const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     initialMessages: [
@@ -88,25 +42,29 @@ export function AIChat() {
     async onToolCall({ toolCall }) {
       console.log("toolCall", JSON.stringify(toolCall));
       try {
-        // Validate and parse toolCall.args using Zod schema if necessary
-        const args = toolCall.args as Partial<PropertyData>;
-        let toastMessage = "";
+        if (toolCall.toolName === "leaveCall") {
+          const farewellData = toolCall.args as Farewell;
+          setModalContent({
+            type: "farewell",
+            content: farewellData,
+          });
+          setIsModalOpen(true);
 
-        // Dispatch a single action to update all fields
-        dispatch({ type: "UPDATE_PROPERTY", payload: args });
-
-        // Create a toast message for updated fields
-        Object.keys(args).forEach((key) => {
-          const value = args[key as keyof typeof args];
-          if (value !== undefined) {
-            toastMessage += `${key} updated: ${value}\n\n`;
-          }
-        });
-
-        if (toastMessage) {
           toast({
-            title: "Form Updates",
-            description: toastMessage.trim(),
+            title: "Call Ended",
+            description: farewellData.farewell,
+          });
+        } else if (toolCall.toolName === "makeDecision") {
+          const decisionData = toolCall.args as Decision;
+          setModalContent({
+            type: "decision",
+            content: decisionData,
+          });
+          setIsModalOpen(true);
+
+          toast({
+            title: "Decision Made",
+            description: `Decision: ${decisionData.decision}\nReason: ${decisionData.reason}`,
           });
         }
       } catch (error) {
@@ -114,18 +72,24 @@ export function AIChat() {
         toast({
           title: "Error",
           description:
-            "There was an issue updating the form. Please try again.",
+            "There was an issue processing the decision. Please try again.",
           variant: "destructive",
         });
       }
     },
     onFinish: async (message) => {
-      // Check that mic is active
       if (isMicOn) {
         await handleGenerateAudio(message.content);
       }
     },
   });
+
+  // UseEffect to update the decision state
+  useEffect(() => {
+    if (modalContent) {
+      console.log("Decision:", modalContent.content);
+    }
+  }, [modalContent]);
 
   const [isMicOn, setIsMicOn] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -204,14 +168,9 @@ export function AIChat() {
     scrollToBottom();
   }, [messages]);
 
-  const handleGenerateForm = () => {
-    setIsModalOpen(true);
-  };
-
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
       <div className="flex-grow w-full max-w-3xl overflow-y-auto px-4 pb-24 pt-8">
-        {JSON.stringify(systemPromptJane)}
         {messages.filter((m) => m.id !== "system-1").length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
             Start a conversation by typing a message below, or chat with the AI
@@ -231,16 +190,7 @@ export function AIChat() {
                   {m.role === "user" ? "You" : "AI"}
                 </div>
                 <div className="whitespace-pre-wrap">
-                  {m.toolInvocations ? (
-                    <div className="mt-2">
-                      <p>Would you like to generate the ASR form?</p>
-                      <Button onClick={handleGenerateForm} className="mt-2">
-                        Generate Form
-                      </Button>
-                    </div>
-                  ) : (
-                    <Markdown remarkPlugins={[remarkGfm]}>{m.content}</Markdown>
-                  )}
+                  <Markdown remarkPlugins={[remarkGfm]}>{m.content}</Markdown>
                 </div>
               </div>
             ))
@@ -288,8 +238,56 @@ export function AIChat() {
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogTitle>Generate ASR Form</DialogTitle>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto"></DialogContent>
+        <DialogTitle>
+          {modalContent?.type === "decision" ? "Sales Response" : "Call Ended"}
+        </DialogTitle>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          {modalContent ? (
+            modalContent.type === "decision" ? (
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <span className="font-semibold">Response:</span>
+                  <span
+                    className={
+                      (modalContent.content as Decision).decision === "yes"
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }
+                  >
+                    {(modalContent.content as Decision).decision === "yes"
+                      ? "APPROVED"
+                      : "DECLINED"}
+                  </span>
+                </div>
+                <div>
+                  <span className="font-semibold">Explanation:</span>
+                  <p className="mt-1">
+                    {(modalContent.content as Decision).reason}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <span className="font-semibold">Farewell Message:</span>
+                  <p className="mt-1">
+                    {(modalContent.content as Farewell).farewell}
+                  </p>
+                </div>
+                <div>
+                  <span className="font-semibold">Reason:</span>
+                  <p className="mt-1">
+                    {(modalContent.content as Farewell).reason}
+                  </p>
+                </div>
+              </div>
+            )
+          ) : (
+            <div className="text-gray-500">
+              No response has been generated yet.
+            </div>
+          )}
+        </DialogContent>
       </Dialog>
     </div>
   );

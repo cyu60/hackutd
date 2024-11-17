@@ -4,7 +4,9 @@ import { createOpenAI } from "@ai-sdk/openai";
 
 const openai = createOpenAI({
   // custom settings, e.g.
-  compatibility: "strict", // strict mode, enable when using the OpenAI API
+  apiKey: process.env.SAMBANOVA_API_KEY,
+  baseURL: "https://api.sambanova.ai/v1",
+  // baseURL: "https://api.sambanova.ai/v1/chat/completions",
 });
 
 import { streamText } from "ai";
@@ -17,90 +19,42 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
+  console.log("messages", messages);
   const result = await streamText({
-    model: openai("gpt-4-turbo"),
+    model: openai("Meta-Llama-3.1-405B-Instruct"),
+    // model: openai("gpt-4o"),
     messages: messages,
     tools: {
-      generateASRForm: tool({
-        description: "Generate an ASR form based on provided details",
+      makeDecision: tool({
+        description: "Make a yes or no decision about a purchase",
         parameters: z.object({
-          propertyAddress: z.string().optional().describe("Property address"),
-          name: z.string().optional().describe("Client name"),
-          address: z.string().optional().describe("Client address"),
-          sellerConcessions: z
-            .string()
-            .optional()
-            .describe("Seller concessions (yes/no)"),
-          buyerBrokerFee: z.string().optional().describe("Buyer broker fee"),
-          closingCostAssistance: z
-            .string()
-            .optional()
-            .describe("Closing cost assistance"),
-          mortgageContingency: z
-            .string()
-            .optional()
-            .describe("Mortgage contingency (yes/no)"),
-          appraisalContingency: z
-            .string()
-            .optional()
-            .describe("Appraisal contingency (yes/no)"),
-          inspections: z.string().optional().describe("Inspections (yes/no)"),
-          selectedInspections: z
-            .array(z.string())
-            .optional()
-            .describe("Selected inspection types"),
-          inspectionDays: z
-            .number()
-            .optional()
-            .describe("Inspection period in days"),
-          settlementDate: z
-            .string()
-            .optional()
-            .describe("Settlement date (ISO string format)"),
-          offerDate: z
-            .string()
-            .optional()
-            .describe("Offer date (ISO string format)"),
-          includedFixtures: z.string().optional().describe("Included fixtures"),
-          excludedFixtures: z.string().optional().describe("Excluded fixtures"),
-          additionalTerms: z.string().optional().describe("Additional terms"),
-          purchasePrice: z.number().optional().describe("Purchase price"),
-          agreementDraftDate: z
-            .string()
-            .transform((str) => new Date(str).toISOString())
-            .optional()
-            .describe("Agreement draft date (ISO string format)"),
-          earnestMoneyDeposit: z
-            .number()
-            .optional()
-            .describe("Earnest money deposit"),
-          initialDepositDays: z
-            .number()
-            .optional()
-            .describe("Initial deposit days"),
+          decision: z.enum(["yes", "no"]).describe("Final decision"),
+          reason: z.string().describe("Explanation for the decision"),
         }),
         execute: async (params) => {
-          const processedParams = {
-            ...params,
-            settlementDate: params.settlementDate
-              ? new Date(params.settlementDate).toISOString()
-              : undefined,
-            offerDate: params.offerDate
-              ? new Date(params.offerDate).toISOString()
-              : undefined,
-            agreementDraftDate: params.agreementDraftDate
-              ? new Date(params.agreementDraftDate).toISOString()
-              : undefined,
-          };
-
           return {
             success: true,
-            formDetails: processedParams,
+            decision: params,
+          };
+        },
+      }),
+      leaveCall: tool({
+        description: "End the current conversation politely",
+        parameters: z.object({
+          farewell: z.string().describe("Polite goodbye message"),
+          reason: z.string().describe("Reason for leaving the call"),
+        }),
+        execute: async (params) => {
+          return {
+            success: true,
+            message: params,
           };
         },
       }),
     },
   });
+
+  // console.log("result", result);
 
   return result.toDataStreamResponse();
 }
