@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Cloud, Package } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/public/img/logo.png";
+import Link from "next/link";
 
 export function B2bSalesPractice() {
   const [isAdminView, setIsAdminView] = useState(false);
@@ -50,6 +51,7 @@ export function B2bSalesPractice() {
             </a>
           </div>
           <div className="flex items-center space-x-2">
+            <Link href="/create-profile" className="m-2 hover:font-bold">Create Profile</Link>
             <span className="text-sm text-black dark:text-gray-300">
               Admin View
             </span>
