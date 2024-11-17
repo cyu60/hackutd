@@ -150,7 +150,7 @@ export function PinataScenario() {
             </h3>
             {/* <ScrollArea className="h-64 rounded-md border p-4"> */}
             <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">
-              Dear Piñata Team,
+              Dear Pinata Team,
               <br />
               <br />
               I am the Operations Manager at Acme Consumer Goods, and we are
@@ -234,7 +234,7 @@ export function PinataScenario() {
       </main>
 
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Response Analysis</DialogTitle>
           </DialogHeader>

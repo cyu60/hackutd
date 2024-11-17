@@ -40,7 +40,7 @@ export function B2bSalesPractice() {
   return (
     <div className="min-h-screen bg-[#efefef] dark:bg-gray-900">
       <header className="dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             {/* <Drill className="w-8 h-8 text-primary" /> */}
             <a href="/dashboard" className="flex items-center space-x-2">

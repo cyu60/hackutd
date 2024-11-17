@@ -223,7 +223,7 @@ export default function PublicFiles() {
   return (
     <main className="w-full min-h-screen bg-gray-50">
       <header className="dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             {/* <Drill className="w-8 h-8 text-primary" /> */}
             <a href="/dashboard" className="flex items-center space-x-2">
@@ -241,7 +241,7 @@ export default function PublicFiles() {
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8 m-5">
+      <div className="max-w-7xl mx-auto bg-white rounded-xl shadow-md p-8 m-5">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Profile File Upload
         </h1>
@@ -280,8 +280,8 @@ export default function PublicFiles() {
                 !file
                   ? "bg-gray-300 cursor-not-allowed"
                   : uploading
-                  ? "bg-blue-400 cursor-wait"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-[#6c9fcc] cursor-wait"
+                  : "bg-[#173187] hover:bg-[#0d2268]"
               } transition-colors`}
           >
             {uploading ? "Uploading..." : "Upload via Pinata"}
@@ -299,7 +299,7 @@ export default function PublicFiles() {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 underline text-sm"
+                  className="text-[#173187] hover:text-blue-800 underline text-sm"
                 >
                   View on Pinata
                 </a>
@@ -335,7 +335,27 @@ export default function PublicFiles() {
                 Profile Data
               </h2>
               {/* Use markdown to display the profile data with react-markdown and remark-gfm */}
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h1: ({ children }) => <h1 className="text-2xl font-bold mb-4">{children}</h1>,
+                  h2: ({ children }) => <h2 className="text-xl font-semibold mb-3">{children}</h2>,
+                  h3: ({ children }) => <h3 className="text-lg font-medium mb-2">{children}</h3>,
+                  p: ({ children }) => <p className="text-gray-700 mb-4">{children}</p>,
+                  ul: ({ children }) => <ul className="list-disc pl-6 mb-4">{children}</ul>,
+                  ol: ({ children }) => <ol className="list-decimal pl-6 mb-4">{children}</ol>,
+                  li: ({ children }) => <li className="mb-1 text-gray-700">{children}</li>,
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-4 border-gray-300 pl-4 italic my-4">{children}</blockquote>
+                  ),
+                  code: ({ children }) => (
+                    <code className="bg-gray-100 rounded px-1 py-0.5 text-sm">{children}</code>
+                  ),
+                  pre: ({ children }) => (
+                    <pre className="bg-gray-100 rounded p-4 overflow-x-auto my-4">{children}</pre>
+                  ),
+                }}
+              >
                 {profileData}
               </ReactMarkdown>
             </div>
