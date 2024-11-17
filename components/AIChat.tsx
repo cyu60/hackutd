@@ -12,6 +12,10 @@ import { toast } from "@/hooks/use-toast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
+// Import EnhancedPhoneCall
+import { EnhancedPhoneCall } from "@/components/enhanced-phone-call";
+import { Phone } from "lucide-react";
+
 // Simplify to only keep decision-related type
 type Decision = {
   decision: "yes" | "no";
@@ -30,6 +34,9 @@ type ModalContent = {
 
 export function AIChat() {
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
+
+  // State to manage Phone Call Dialog
+  const [isPhoneCallOpen, setIsPhoneCallOpen] = useState<boolean>(false);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     initialMessages: [
@@ -168,6 +175,13 @@ export function AIChat() {
     scrollToBottom();
   }, [messages]);
 
+  // Add this ref to store the toggle function
+  const toggleMicRef = useRef<(() => void) | undefined>();
+
+  const triggerMic = () => {
+    toggleMicRef.current?.();
+  };
+
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
       <div className="flex-grow w-full max-w-3xl overflow-y-auto px-4 pb-24 pt-8">
@@ -229,7 +243,17 @@ export function AIChat() {
               }}
               setIsMicOn={setIsMicOn}
               isMicOn={isMicOn}
+              toggleMicFunction={toggleMicRef.current}
             />
+            {/* New Button to Open EnhancedPhoneCall Dialog */}
+            <Button
+              variant="ghost"
+              onClick={() => setIsPhoneCallOpen(true)}
+              className="ml-2"
+              title="Open Phone Call"
+            >
+              <Phone className="h-6 w-6" />
+            </Button>
           </form>
           {isMicOn && (
             <p className="mt-2 text-sm text-gray-600">Listening...</p>
@@ -237,6 +261,7 @@ export function AIChat() {
         </div>
       </div>
 
+      {/* Existing Modal for Decisions and Farewells */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogTitle>
           {modalContent?.type === "decision" ? "Sales Response" : "Call Ended"}
@@ -287,6 +312,22 @@ export function AIChat() {
               No response has been generated yet.
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* New Dialog for EnhancedPhoneCall */}
+      <Dialog
+        open={isPhoneCallOpen}
+        onOpenChange={(open) => {
+          setIsPhoneCallOpen(open);
+          if (!open) {
+            setIsMicOn(false);
+          }
+        }}
+      >
+        <DialogTitle>Enhanced Phone Call</DialogTitle>
+        <DialogContent className="sm:max-w-[425px] p-0">
+          <EnhancedPhoneCall isMicOn={isMicOn} setIsMicOn={triggerMic} />
         </DialogContent>
       </Dialog>
     </div>

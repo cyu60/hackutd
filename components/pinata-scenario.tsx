@@ -64,6 +64,9 @@ export function PinataScenario() {
       const feedbackData = await apiResponse.json();
       setFeedback(feedbackData);
 
+      // Store response in localStorage
+      localStorage.setItem("pinataScenarioResponse", response);
+
       toast({
         title: "Response Submitted",
         description: "Your response has been analyzed successfully.",

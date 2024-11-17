@@ -22,6 +22,7 @@ interface BaseMicButtonProps {
   handleSendMessage: () => void;
   setIsMicOn: (isOn: boolean) => void;
   isMicOn: boolean;
+  toggleMicFunction?: () => void;
 }
 
 interface Word {
@@ -228,6 +229,12 @@ function BaseMicButton(props: BaseMicButtonProps) {
   useEffect(() => {
     console.log("connectionState: ", connectionState);
   }, [connectionState]);
+
+  useEffect(() => {
+    if (props.toggleMicFunction) {
+      props.toggleMicFunction = toggleMic;
+    }
+  }, []);
 
   return (
     <>
