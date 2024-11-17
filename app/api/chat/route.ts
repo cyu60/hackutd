@@ -1,13 +1,13 @@
-// import { openai } from "@ai-sdk/openai";
+import { openai } from "@ai-sdk/openai";
 
-import { createOpenAI } from "@ai-sdk/openai";
+// import { createOpenAI } from "@ai-sdk/openai";
 
-const openai = createOpenAI({
-  // custom settings, e.g.
-  apiKey: process.env.SAMBANOVA_API_KEY,
-  baseURL: "https://api.sambanova.ai/v1",
-  // baseURL: "https://api.sambanova.ai/v1/chat/completions",
-});
+// const openai = createOpenAI({
+//   // custom settings, e.g.
+//   apiKey: process.env.SAMBANOVA_API_KEY,
+//   baseURL: "https://api.sambanova.ai/v1",
+//   // baseURL: "https://api.sambanova.ai/v1/chat/completions",
+// });
 
 import { streamText } from "ai";
 import { tool } from "ai";
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
 
   console.log("messages", messages);
   const result = await streamText({
-    model: openai("Meta-Llama-3.1-405B-Instruct"),
-    // model: openai("gpt-4o"),
+    // model: openai("Meta-Llama-3.1-405B-Instruct"),
+    model: openai("gpt-4o"),
     messages: messages,
     tools: {
       makeDecision: tool({

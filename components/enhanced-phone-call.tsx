@@ -16,7 +16,13 @@ import {
   Users,
 } from "lucide-react";
 
-export function EnhancedPhoneCall() {
+// Accept isMicOn as a prop
+type EnhancedPhoneCallProps = {
+  isMicOn: boolean;
+  setIsMicOn: (value: boolean) => void;
+};
+
+export function EnhancedPhoneCall({ setIsMicOn }: EnhancedPhoneCallProps) {
   const [isAnswered, setIsAnswered] = useState(false);
   const [time, setTime] = useState(0);
   const [dragPosition, setDragPosition] = useState(0);
@@ -25,16 +31,19 @@ export function EnhancedPhoneCall() {
 
   useEffect(() => {
     if (isAnswered) {
+      setIsMicOn(true);
       intervalRef.current = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
+    } else {
+      setIsMicOn(false);
     }
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [isAnswered]);
+  }, [isAnswered, setIsMicOn]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -75,8 +84,8 @@ export function EnhancedPhoneCall() {
   };
 
   return (
-    <div className="min-h-screen w-full max-w-md mx-auto bg-gradient-to-b from-primary/90 to-primary-foreground/90 p-4 flex flex-col justify-center items-center">
-      <Card className="w-full max-w-sm bg-background/80 backdrop-blur-md shadow-lg rounded-3xl overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-gradient-to-b from-primary/90 to-primary-foreground/90 p-4">
+      <Card className="w-full max-w-sm mx-auto bg-background/80 backdrop-blur-md shadow-lg rounded-3xl overflow-hidden">
         {!isAnswered ? (
           <div className="p-8 flex flex-col items-center">
             <Avatar className="w-32 h-32 mb-6">
