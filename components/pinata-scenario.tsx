@@ -25,6 +25,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
+import Logo from "@/public/img/logo.png";
+import Image from "next/image";
 
 interface FeedbackResponse {
   contentClarity: {
@@ -234,12 +236,26 @@ export function PinataScenario() {
           </DialogHeader>
           {feedback && (
             <div className="space-y-4">
-              {feedback.reason && (
-                <div className="space-y-2 bg-muted p-4 rounded-lg">
-                  <h3 className="font-semibold">Overall Feedback</h3>
-                  <p className="text-sm">{feedback.reason}</p>
+              {/* Calculate overall feedback dynamically */}
+              <div className="space-y-2 bg-blue-100 p-4 rounded-lg relative">
+                <h3 className="font-semibold">Overall Feedback</h3>
+                <p className="text-sm">
+                  {
+                    feedback.reason ||
+                    "This is an aggregated score based on all feedback categories."
+                  }
+                </p>
+                <div className="absolute top-4 right-4 text-[#163286] font-semibold">
+                  {(
+                    (feedback.contentClarity.score +
+                      feedback.personalization.score +
+                      feedback.toneAndStyle.score +
+                      feedback.valueProposition.score) /
+                    4
+                  ).toFixed(1)}
+                  /10
                 </div>
-              )}
+              </div>
               <div className="space-y-2">
                 <h3 className="font-semibold">Content Clarity</h3>
                 <p className="text-sm">{feedback.contentClarity.feedback}</p>
@@ -279,6 +295,7 @@ export function PinataScenario() {
           )}
         </DialogContent>
       </Dialog>
+
     </div>
   );
 }
