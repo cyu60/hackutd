@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { pinata, getFileUrl } from "@/lib/config";
 import FilesList from "@/components/FilesList";
+import mammoth from "mammoth";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 export default function PublicFiles() {
   const [file, setFile] = useState<File | null>(null);
@@ -10,6 +16,11 @@ export default function PublicFiles() {
   const [uploading, setUploading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [groupId, setGroupId] = useState<string>("");
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [documentContent, setDocumentContent] = useState<string>("");
+  const [profileData, setProfileData] = useState<string>("");
+  // Profile data loading state
+  const [profileLoading, setProfileLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const initializeGroup = async () => {
@@ -19,7 +30,6 @@ export default function PublicFiles() {
           throw new Error("Failed to initialize group");
         }
         const group = await response.json();
-        console.log("group", group);
         setGroupId(group.id);
       } catch (err) {
         console.error(err);
@@ -49,8 +59,10 @@ export default function PublicFiles() {
 
       console.log("upload", upload);
       const publicUrl = getFileUrl(upload.cid);
+      console.log("publicUrl", publicUrl);
       setUrl(publicUrl);
       setUploading(false);
+      setRefreshTrigger((prev) => prev + 1);
     } catch (err) {
       console.error(err);
       setError("Failed to upload file");
@@ -58,14 +70,131 @@ export default function PublicFiles() {
     }
   };
 
+  const previewDocument = async (file: File) => {
+    try {
+      const reader = new FileReader();
+
+      if (
+        file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        // Handle DOCX files with mammoth
+        const arrayBuffer = await file.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer });
+        setDocumentContent(result.value);
+        // Add to local storage in array
+        const files = localStorage.getItem("files") || "[]";
+        const filesArray = JSON.parse(files);
+        filesArray.push({
+          name: file.name,
+          text: result.value,
+        });
+        console.log("filesArray", filesArray);
+        localStorage.setItem("files", JSON.stringify(filesArray));
+      } else {
+        // Handle other text files
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          setDocumentContent(content);
+        };
+        reader.readAsText(file);
+      }
+    } catch (err) {
+      console.error("Error previewing document:", err);
+      setError("Failed to preview document");
+    }
+  };
+
+  const handleGenerateProfile = async () => {
+    try {
+      setProfileLoading(true);
+      const filesData = localStorage.getItem("files");
+      if (!filesData) {
+        toast({
+          title: "No Files",
+          description: "No files found in local storage to generate profile.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const url =
+        "https://magicloops.dev/api/loop/0cc2481a-a849-48e1-86e1-912a730abe6f/run";
+      const apiResponse = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: filesData,
+      });
+
+      const profileData = await apiResponse.json();
+      console.log("Profile generated:", profileData);
+
+      // Update state
+      setProfileData(profileData);
+
+      toast({
+        title: "Profile Generated",
+        description: "Profile has been generated successfully.",
+      });
+      setProfileLoading(false);
+    } catch (error) {
+      console.error("Error generating profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate profile. Please try again.",
+        variant: "destructive",
+      });
+      setProfileLoading(false);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFile(e.target?.files?.[0] || null);
+    const selectedFile = e.target?.files?.[0] || null;
+    setFile(selectedFile);
+
+    if (
+      selectedFile?.type === "text/plain" ||
+      selectedFile?.type === "application/pdf" ||
+      selectedFile?.type === "application/msword" ||
+      selectedFile?.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      previewDocument(selectedFile);
+    } else {
+      setDocumentContent("");
+    }
   };
 
   const renderContent = () => {
     if (!url) return null;
 
     const fileType = file?.type || "";
+
+    if (
+      fileType === "text/plain" ||
+      fileType === "application/pdf" ||
+      fileType === "application/msword" ||
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ) {
+      return (
+        <div className="flex gap-4 w-full">
+          <div className="flex-1">
+            <a href={url}>Download Document</a>
+          </div>
+          <div className="flex-1">
+            <textarea
+              value={documentContent}
+              readOnly
+              className="w-full h-48 p-2 border rounded-md"
+              placeholder="Document preview"
+            />
+          </div>
+        </div>
+      );
+    }
 
     if (fileType.startsWith("image/")) {
       return (
@@ -161,8 +290,34 @@ export default function PublicFiles() {
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Profile Files
             </h2>
-            <FilesList groupId={groupId} />
+            <FilesList groupId={groupId} key={refreshTrigger} />
           </div>
+
+          {/* Generate Profile Button */}
+          <div className="flex justify-end mt-6">
+            <Button onClick={handleGenerateProfile} disabled={profileLoading}>
+              {profileLoading ? "Generating..." : "Generate Profile"}
+              {/* Add spinner if loading */}
+              {profileLoading && (
+                <span className="ml-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                </span>
+              )}
+            </Button>
+          </div>
+
+          {/* Display the document content for file list */}
+          {profileData && (
+            <div className="mt-8 border rounded-lg p-4">
+              <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                Profile Data
+              </h2>
+              {/* Use markdown to display the profile data with react-markdown and remark-gfm */}
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {profileData}
+              </ReactMarkdown>
+            </div>
+          )}
 
           {error && <p className="text-red-500 mt-4">{error}</p>}
         </div>

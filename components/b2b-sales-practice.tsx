@@ -22,7 +22,7 @@ export function B2bSalesPractice() {
   const scenarios = [
     {
       title: "Pinata",
-      description: "IPFS pinning service",
+      description: "Files and IPFS pinning service",
       icon: <Package className="w-6 h-6" />,
       difficulty: "Medium",
       href: "/pinata",
