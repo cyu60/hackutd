@@ -6,13 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { createAudioStreamFromText } from "@/utils/elevenlabsTTS";
 import { MicButton } from "@/components/MicButton";
 import { useEffect, useRef, useState } from "react";
-import { systemPromptJane } from "@/lib/constants";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Image from "next/image";
-import Logo from "@/public/img/logo.png"
+import Logo from "@/public/img/logo.png";
 
 // Import EnhancedPhoneCall
 import { EnhancedPhoneCall } from "@/components/enhanced-phone-call";
@@ -34,18 +33,31 @@ type ModalContent = {
   content: Decision | Farewell;
 };
 
-export function AIChat() {
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { getFileUrl, pinata } from "@/lib/config";
+
+// Update the component props interface
+interface AIChatProps {
+  systemPrompt: string;
+}
+
+// Update the component definition to accept props
+export function AIChat({ systemPrompt }: AIChatProps) {
   const [modalContent, setModalContent] = useState<ModalContent | null>(null);
 
   // State to manage Phone Call Dialog
   const [isPhoneCallOpen, setIsPhoneCallOpen] = useState<boolean>(false);
+
+  const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
+
+  const [url, setUrl] = useState<string | null>(null);
 
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     initialMessages: [
       {
         id: "system-1",
         role: "system",
-        content: systemPromptJane,
+        content: systemPrompt,
       },
     ],
     async onToolCall({ toolCall }) {
@@ -100,7 +112,25 @@ export function AIChat() {
     }
   }, [modalContent]);
 
+  useEffect(() => {
+    const initializeGroup = async () => {
+      try {
+        const response = await fetch("/api/init-group");
+        if (!response.ok) {
+          throw new Error("Failed to initialize group");
+        }
+        const group = await response.json();
+        setGroupId(group.id);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    initializeGroup();
+  }, []);
+
   const [isMicOn, setIsMicOn] = useState<boolean>(false);
+  const [groupId, setGroupId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | undefined>(undefined);
@@ -184,18 +214,245 @@ export function AIChat() {
     toggleMicRef.current?.();
   };
 
+  // Add function to generate feedback
+  const handleGenerateFeedback = async () => {
+    setIsGeneratingFeedback(true);
+    try {
+      // Get email response from localStorage
+      const emailResponse = localStorage.getItem("pinataScenarioResponse");
+
+      // Prepare conversation data
+      const conversationData = messages
+        .filter((m) => m.id !== "system-1")
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
+      const data = {
+        emailResponse,
+        conversation: conversationData,
+      };
+
+      const response = await fetch(
+        "https://magicloops.dev/api/loop/60bb42b5-8883-433e-b9ac-50d3211c8654/run",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const feedbackForm = await response.json();
+      // Create PDF
+      const pdfDoc = await PDFDocument.create();
+      const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+      let page = pdfDoc.addPage();
+      const { height } = page.getSize();
+
+      // Add feedback content
+      if (feedbackForm) {
+        try {
+          // const feedback = JSON.parse(feedbackForm);
+          const feedback = feedbackForm;
+          const { width } = page.getSize();
+          let currentY = height - 50;
+          const sections = [
+            { title: "Overall Feedback", data: feedback.overallFeedback },
+            { title: "Email Analysis", data: feedback.emailFeedback },
+            {
+              title: "Conversation Analysis",
+              data: feedback.conversationFeedback,
+            },
+          ];
+
+          for (const section of sections) {
+            // Add new page if needed
+            if (currentY < 100) {
+              page = pdfDoc.addPage();
+              currentY = height - 50;
+            }
+
+            // Draw section title
+            page.drawText(section.title, {
+              x: 50,
+              y: currentY,
+              size: 16,
+              font: timesRomanFont,
+              color: rgb(0, 0, 0),
+            });
+            currentY -= 30;
+
+            // Draw section content
+            Object.entries(section.data).forEach(
+              ([key, value]: [string, unknown]) => {
+                const title = key.charAt(0).toUpperCase() + key.slice(1);
+                if (typeof value === "object") {
+                  // Draw subsection title
+                  page.drawText(`${title}:`, {
+                    x: 50,
+                    y: currentY,
+                    size: 12,
+                    font: timesRomanFont,
+                    color: rgb(0, 0, 0),
+                  });
+                  currentY -= 20;
+
+                  // Draw score and feedback
+                  page.drawText(
+                    `Score: ${(value as { score: number })?.score}/5`,
+                    {
+                      x: 70,
+                      y: currentY,
+                      size: 12,
+                      font: timesRomanFont,
+                      color: rgb(0, 0, 0),
+                    }
+                  );
+                  currentY -= 20;
+
+                  // Handle text wrapping for feedback
+                  const words = (value as { feedback: string })?.feedback.split(
+                    " "
+                  );
+                  let line = "";
+                  const maxWidth = width - 140; // Increased indent for feedback
+
+                  words.forEach((word: string) => {
+                    const testLine = line + word + " ";
+                    const textWidth = (12 / 2) * testLine.length;
+
+                    if (textWidth > maxWidth && line.length > 0) {
+                      page.drawText(line, {
+                        x: 70,
+                        y: currentY,
+                        size: 12,
+                        font: timesRomanFont,
+                        color: rgb(0, 0, 0),
+                      });
+                      currentY -= 20;
+                      line = word + " ";
+                    } else {
+                      line = testLine;
+                    }
+                  });
+
+                  if (line.length > 0) {
+                    page.drawText(line.trim(), {
+                      x: 70,
+                      y: currentY,
+                      size: 12,
+                      font: timesRomanFont,
+                      color: rgb(0, 0, 0),
+                    });
+                    currentY -= 30;
+                  }
+                }
+              }
+            );
+            currentY -= 20; // Add space between sections
+          }
+        } catch (error) {
+          console.error("Error parsing feedback form:", error);
+          toast({
+            title: "Error",
+            description: "Failed to parse feedback data",
+            variant: "destructive",
+          });
+        }
+      }
+
+      // Save the PDF
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const file = new File([blob], "conversation-feedback.pdf", {
+        type: "application/pdf",
+      });
+
+      // Save to pinata
+      const keyRequest = await fetch("/api/key");
+      const keyData = await keyRequest.json();
+      const upload = await pinata.upload
+        .file(file)
+        .group(groupId!)
+        .key(keyData.JWT);
+
+      const publicUrl = getFileUrl(upload.cid);
+
+      setUrl(publicUrl);
+
+      // save to local storage
+      // append to array of urls
+      const existingUrls =
+        localStorage.getItem("conversationFeedbackUrls") || "[]";
+      const urls = JSON.parse(existingUrls);
+      urls.push(publicUrl);
+      localStorage.setItem("conversationFeedbackUrls", JSON.stringify(urls));
+
+      // Send URL via webhook to Magic Loops
+      const webhookUrl =
+        "https://magicloops.dev/api/loop/e744c6c1-eb85-40ea-a97f-e5b1d5a9b900/run";
+
+      try {
+        console.log("Sending webhook with data:", { url, feedbackForm });
+
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            input: url,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Webhook success:", result);
+      } catch (error) {
+        console.error("Webhook error:", error);
+        toast({
+          title: "Webhook Error",
+          description:
+            "Failed to send feedback data, but PDF was generated successfully.",
+          variant: "destructive",
+        });
+      }
+
+      // Create a download link
+      // const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      // const url = window.URL.createObjectURL(blob);
+      // const link = document.createElement("a");
+      // link.href = url;
+      // link.download = "conversation-feedback.pdf";
+      // link.click();
+
+      // // Cleanup
+      // window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error generating feedback:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate feedback. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingFeedback(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
       <header className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
           <div className="flex items-center space-x-2">
             <a href="/dashboard" className="flex items-center space-x-2">
-              <Image
-                src={Logo}
-                alt="DealDrill Logo"
-                width={32}
-                height={32}
-              />
+              <Image src={Logo} alt="DealDrill Logo" width={32} height={32} />
               <h1 className="text-2xl font-bold text-black dark:text-white">
                 DealDrill
               </h1>
@@ -330,6 +587,37 @@ export function AIChat() {
           ) : (
             <div className="text-gray-500">
               No response has been generated yet.
+            </div>
+          )}
+          {modalContent && (
+            <div className="mt-6 space-y-4">
+              <Button
+                onClick={handleGenerateFeedback}
+                disabled={isGeneratingFeedback}
+                className="w-full"
+              >
+                {isGeneratingFeedback ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Generating Feedback...
+                  </>
+                ) : (
+                  "Generate Conversation Feedback"
+                )}
+              </Button>
+
+              {url && (
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
+                    View PDF Report
+                  </a>
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

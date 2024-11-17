@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Cloud, Package, Drill } from "lucide-react";
+import { Cloud, Package } from "lucide-react";
 import Image from "next/image";
 import Logo from "@/public/img/logo.png";
 
@@ -43,12 +43,7 @@ export function B2bSalesPractice() {
           <div className="flex items-center space-x-2">
             {/* <Drill className="w-8 h-8 text-primary" /> */}
             <a href="/dashboard" className="flex items-center space-x-2">
-              <Image
-                src={Logo}
-                alt="DealDrill Logo"
-                width={32}
-                height={32}
-              />
+              <Image src={Logo} alt="DealDrill Logo" width={32} height={32} />
               <h1 className="text-2xl font-bold text-black dark:text-white">
                 DealDrill
               </h1>
@@ -91,7 +86,11 @@ export function B2bSalesPractice() {
                           ? "secondary"
                           : "destructive"
                       }
-                      className={scenario.difficulty === "Medium" ? "bg-custom-medium" : ""}
+                      className={
+                        scenario.difficulty === "Medium"
+                          ? "bg-custom-medium"
+                          : ""
+                      }
                     >
                       {scenario.difficulty}
                     </Badge>

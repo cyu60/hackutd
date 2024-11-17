@@ -1,22 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "@/components/ui/avatar";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Drill, Mail, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -97,12 +85,7 @@ export function PinataScenario() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
           <div className="flex items-center space-x-2">
             <a href="/dashboard" className="flex items-center space-x-2">
-              <Image
-                src={Logo}
-                alt="DealDrill Logo"
-                width={32}
-                height={32}
-              />
+              <Image src={Logo} alt="DealDrill Logo" width={32} height={32} />
               <h1 className="text-2xl font-bold text-black dark:text-white">
                 DealDrill
               </h1>
@@ -144,12 +127,17 @@ export function PinataScenario() {
           <CardHeader className="border-b p-4">
             <div className="flex items-center space-x-4">
               <Avatar>
-                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="JD" />
+                <AvatarImage
+                  src="/placeholder.svg?height=40&width=40"
+                  alt="JD"
+                />
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h2 className="text-lg font-semibold">Jane Doe</h2>
-                <p className="text-sm text-gray-500">jane.doe@acmeconsumergoods.com</p>
+                <p className="text-sm text-gray-500">
+                  jane.doe@acmeconsumergoods.com
+                </p>
               </div>
               <div className="text-sm text-gray-500">
                 {new Date().toLocaleString()}
@@ -157,16 +145,24 @@ export function PinataScenario() {
             </div>
           </CardHeader>
           <CardContent className="p-4">
-          <h3 className="text-xl font-semibold mb-2">Inquiry About Pinata&apos;s IPFS Storage Solutions</h3>
-          {/* <ScrollArea className="h-64 rounded-md border p-4"> */}
+            <h3 className="text-xl font-semibold mb-2">
+              Inquiry About Pinata&apos;s IPFS Storage Solutions
+            </h3>
+            {/* <ScrollArea className="h-64 rounded-md border p-4"> */}
             <p className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-line">
               Dear Piñata Team,
               <br />
               <br />
-              I am the Operations Manager at Acme Consumer Goods, and we are exploring solutions to improve our data storage and management processes. We face challenges with data accessibility, security, and scalability.
+              I am the Operations Manager at Acme Consumer Goods, and we are
+              exploring solutions to improve our data storage and management
+              processes. We face challenges with data accessibility, security,
+              and scalability.
               <br />
               <br />
-              Could you please provide more information on how Pinata&apos;s platform can assist us in overcoming these challenges? Additionally, we would like to understand the implementation process and any support services you offer.
+              Could you please provide more information on how Pinata&apos;s
+              platform can assist us in overcoming these challenges?
+              Additionally, we would like to understand the implementation
+              process and any support services you offer.
               <br />
               <br />
               Looking forward to your response.
@@ -185,19 +181,24 @@ export function PinataScenario() {
               <br />
               (555) 123-4567
             </p>
-          {/* </ScrollArea> */}
-        </CardContent>
+            {/* </ScrollArea> */}
+          </CardContent>
         </Card>
 
         <Card>
-        <CardHeader className="border-b p-4">
+          <CardHeader className="border-b p-4">
             <div className="flex items-center space-x-4">
               <Avatar>
-                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="JD" />
+                <AvatarImage
+                  src="/placeholder.svg?height=40&width=40"
+                  alt="JD"
+                />
                 <AvatarFallback>US</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold"><span>Salesperson&apos;s Response</span></h2>
+                <h2 className="text-lg font-semibold">
+                  <span>Salesperson&apos;s Response</span>
+                </h2>
                 <p className="text-sm text-gray-500">salesperson@email.com</p>
               </div>
               <div className="text-sm text-gray-500">
@@ -243,10 +244,8 @@ export function PinataScenario() {
               <div className="space-y-2 bg-blue-100 p-4 rounded-lg relative">
                 <h3 className="font-semibold">Overall Feedback</h3>
                 <p className="text-sm">
-                  {
-                    feedback.reason ||
-                    "This is an aggregated score based on all feedback categories."
-                  }
+                  {feedback.reason ||
+                    "This is an aggregated score based on all feedback categories."}
                 </p>
                 <div className="absolute top-4 right-4 text-[#163286] font-semibold">
                   {(
@@ -290,7 +289,7 @@ export function PinataScenario() {
               {feedback.status === "ok" && (
                 <div className="pt-4 flex justify-center">
                   <Button asChild>
-                    <Link href="/ai-chat">Proceed to Voice Chat</Link>
+                    <Link href="/ai-chat-pinata">Proceed to Voice Chat</Link>
                   </Button>
                 </div>
               )}
@@ -298,7 +297,6 @@ export function PinataScenario() {
           )}
         </DialogContent>
       </Dialog>
-
     </div>
   );
 }
