@@ -51,7 +51,9 @@ export function B2bSalesPractice() {
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            <Link href="/create-profile" className="m-2 hover:font-bold">Create Profile</Link>
+            <Link href="/create-profile" className="m-2 hover:font-bold">
+              Create Profile
+            </Link>
             <span className="text-sm text-black dark:text-gray-300">
               Admin View
             </span>
@@ -100,11 +102,11 @@ export function B2bSalesPractice() {
                   <CardDescription>{scenario.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <p className="text-gray-600 dark:text-gray-400">
+                  <div className="text-gray-600 dark:text-gray-400">
                     {isAdminView
                       ? "Admin: Customize this scenario's details and challenges."
                       : "Drill your B2B sales pitch for this scenario and sharpen your skills."}
-                  </p>
+                  </div>
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full">
