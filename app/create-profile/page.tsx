@@ -3,6 +3,10 @@
 import { useState, useEffect } from "react";
 import { pinata, getFileUrl } from "@/lib/config";
 import FilesList from "@/components/FilesList";
+import Logo from "@/public/img/logo.png";
+import Image from "next/image";
+import Link from "next/link";
+
 
 export default function PublicFiles() {
   const [file, setFile] = useState<File | null>(null);
@@ -89,8 +93,25 @@ export default function PublicFiles() {
   };
 
   return (
-    <main className="w-full min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8">
+    <main className="w-full min-h-screen bg-gray-50">
+      <header className="dark:bg-gray-800 shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            {/* <Drill className="w-8 h-8 text-primary" /> */}
+            <a href="/dashboard" className="flex items-center space-x-2">
+              <Image src={Logo} alt="DealDrill Logo" width={32} height={32} />
+              <h1 className="text-2xl font-bold text-black dark:text-white">
+                DealDrill
+              </h1>
+            </a>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Link href="/create-profile" className="m-2 hover:font-bold">Create Profile</Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-md p-8 m-5">
         <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
           Profile File Upload
         </h1>
