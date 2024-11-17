@@ -3,19 +3,15 @@
 import { useState, useEffect } from "react";
 import { pinata, getFileUrl } from "@/lib/config";
 import FilesList from "@/components/FilesList";
-<<<<<<< HEAD
 import mammoth from "mammoth";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-=======
 import Logo from "@/public/img/logo.png";
 import Image from "next/image";
 import Link from "next/link";
-
->>>>>>> 68d55987195a00d2a6bd06e946a21a8d80a688a7
 
 export default function PublicFiles() {
   const [file, setFile] = useState<File | null>(null);
@@ -238,7 +234,9 @@ export default function PublicFiles() {
             </a>
           </div>
           <div className="flex items-center space-x-2">
-            <Link href="/create-profile" className="m-2 hover:font-bold">Create Profile</Link>
+            <Link href="/create-profile" className="m-2 hover:font-bold">
+              Create Profile
+            </Link>
           </div>
         </div>
       </header>
