@@ -449,7 +449,7 @@ export function AIChat({ systemPrompt }: AIChatProps) {
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
       <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
           <div className="flex items-center space-x-2">
             <a href="/dashboard" className="flex items-center space-x-2">
               <Image src={Logo} alt="DealDrill Logo" width={32} height={32} />
@@ -543,7 +543,7 @@ export function AIChat({ systemPrompt }: AIChatProps) {
         <DialogTitle>
           {modalContent?.type === "decision" ? "Sales Response" : "Call Ended"}
         </DialogTitle>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           {modalContent ? (
             modalContent.type === "decision" ? (
               <div className="space-y-4">
@@ -569,7 +569,7 @@ export function AIChat({ systemPrompt }: AIChatProps) {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 ">
                 <div>
                   <span className="font-semibold">Farewell Message:</span>
                   <p className="mt-1">

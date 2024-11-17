@@ -234,7 +234,7 @@ export function PinataScenario() {
       </main>
 
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Response Analysis</DialogTitle>
           </DialogHeader>
