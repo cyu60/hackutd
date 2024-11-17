@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Image from "next/image";
+import Logo from "@/public/img/logo.png"
 
 // Import EnhancedPhoneCall
 import { EnhancedPhoneCall } from "@/components/enhanced-phone-call";
@@ -184,6 +186,24 @@ export function AIChat() {
 
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
+      <header className="bg-white dark:bg-gray-800 shadow">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center">
+          <div className="flex items-center space-x-2">
+            <a href="/dashboard" className="flex items-center space-x-2">
+              <Image
+                src={Logo}
+                alt="DealDrill Logo"
+                width={32}
+                height={32}
+              />
+              <h1 className="text-2xl font-bold text-black dark:text-white">
+                DealDrill
+              </h1>
+            </a>
+          </div>
+        </div>
+      </header>
+
       <div className="flex-grow w-full max-w-3xl overflow-y-auto px-4 pb-24 pt-8">
         {messages.filter((m) => m.id !== "system-1").length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
