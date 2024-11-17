@@ -3,10 +3,11 @@ import Image from "next/image"
 import { ArrowRight } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Logo from "@/public/img/logo.png"
+import Feature from "@/public/img/landingGroup.png"
 
 export default function LandingPage() {
   return (
-    <div className="h-screen"
+    <div className="h-screen overflow-hidden"
       style={{
         background: "linear-gradient(to bottom, #FFFFFF 17%, #163286 66%, #000000 100%)",
       }}
@@ -41,11 +42,11 @@ export default function LandingPage() {
           <div className="container px-4 md:px-6 flex flex-col items-center min-h-screen">
             <div className="flex flex-col items-center justify-center space-y-4 text-center w-full">
               <div className="space-y-2">
-                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl text-black">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-5xl bg-gradient-to-r from-black to-[#163286] inline-block text-transparent bg-clip-text">
                   Sharpen Your Sales Skills with AI-Powered Precision
                 </h1>
-                <p className="mx-auto max-w-[700px] text-sm text-zinc-700 md:text-3xl">
-                  powered by <span className="italic"> Pinata </span> and <span className="italic"> Samba Nova </span>
+                <p className="mx-auto max-w-[700px] text-sm text-zinc-700 md:text-xl">
+                  powered by <span className="italic font-bold"> Pinata </span> and <span className="italic font-bold"> Samba Nova </span>
                 </p>
               </div>
               <Button
@@ -59,12 +60,13 @@ export default function LandingPage() {
             </div>
             <div>
               {/* Landing page image placeholder */}
-              {/* <Image
-                src="/images/hero.svg"
+              <Image
+                src={Feature}
                 alt="Hero"
-                width={700}
-                height={700}
-              /> */}
+                width={1000}
+                // height={1000}
+                className="mt-[-30]"
+              />
               </div>
             </div>
         </section>

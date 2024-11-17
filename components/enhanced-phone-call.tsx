@@ -84,8 +84,8 @@ export function EnhancedPhoneCall({ setIsMicOn }: EnhancedPhoneCallProps) {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-gradient-to-b from-primary/90 to-primary-foreground/90 p-4">
-      <Card className="w-full max-w-sm mx-auto bg-background/80 backdrop-blur-md shadow-lg rounded-3xl overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-[#181935] border-0 backdrop-blur-lg p-8">
+      <Card className="w-full max-w-sm mx-auto backdrop-blur-md shadow-lg rounded-3xl border-none">
         {!isAnswered ? (
           <div className="p-8 flex flex-col items-center">
             <Avatar className="w-32 h-32 mb-6">
@@ -97,7 +97,7 @@ export function EnhancedPhoneCall({ setIsMicOn }: EnhancedPhoneCallProps) {
             </Avatar>
             <h1 className="text-4xl font-light mb-2 text-primary">Sarah</h1>
             <p className="text-xl text-muted-foreground mb-8">mobile</p>
-            <div className="flex justify-center space-x-16 mb-8">
+            <div className="flex justify-center space-x-16 mb-8 text-white">
               <Button
                 variant="ghost"
                 className="flex flex-col items-center text-primary"
